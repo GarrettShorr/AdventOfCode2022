@@ -12,6 +12,7 @@ fun main() {
         totalCalories = 0
       }
     }
+    elves.add(totalCalories)
     return elves.max()
   }
 
