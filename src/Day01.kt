@@ -28,13 +28,13 @@ fun main() {
       }
     }
     elves.add(totalCalories)
-    totalCalories = 0
     println(elves)
-    for(i in 1..3) {
-      totalCalories += elves.max()
-      elves.remove(elves.max())
-    }
-    return totalCalories
+//    for(i in 1..3) {
+//      totalCalories += elves.max()
+//      elves.remove(elves.max())
+//    }
+
+    return elves.sorted().takeLast(3).sum()
   }
 
   // test if implementation meets criteria from the description, like:
