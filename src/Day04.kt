@@ -9,7 +9,6 @@ fun main() {
         count++
       }
     }
-
     return count
   }
 
