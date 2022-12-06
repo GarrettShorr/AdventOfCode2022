@@ -26,6 +26,11 @@ fun output(o: Any) {
         )
 }
 
+fun <T> T.debug(): T {
+    println(this)
+    return this
+}
+
 /**
  * Converts string to md5 hash.
  */
