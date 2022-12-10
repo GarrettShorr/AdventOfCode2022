@@ -1,6 +1,5 @@
 fun main() {
 
-
   fun part1(input: List<String>): Int {
     val dirs = mutableListOf<Directory>()
     val topLevelDir = Directory("/")
@@ -17,7 +16,8 @@ fun main() {
         continue
       }
       else if(line.startsWith("dir")) {
-        var newDir = Directory(line.split(" ")[1], parent = currentDir, level = currlevel)
+        var newDir = Directory(line.split(" ")[1], level = currlevel)
+        newDir.parent = currentDir
         currentDir.subDirs.add(newDir)
         dirs.add(newDir)
       }
@@ -47,8 +47,6 @@ fun main() {
       }
     }
 
-
-
     return total
   }
 
@@ -69,7 +67,8 @@ fun main() {
         continue
       }
       else if(line.startsWith("dir")) {
-        val newDir = Directory(line.split(" ")[1], parent = currentDir, level = currlevel)
+        val newDir = Directory(line.split(" ")[1], level = currlevel)
+        newDir.parent = currentDir
         currentDir.subDirs.add(newDir)
         dirs.add(newDir)
       }
@@ -81,9 +80,7 @@ fun main() {
         } else {
           currlevel++
           val dir = line.split(" ")[2]
-          println("line $line before $dir")
           currentDir = currentDir.subDirs.first { it.name == dir }
-          println("after")
         }
       }
       // otherwise it's a file, add it
@@ -111,7 +108,7 @@ fun main() {
         }
       }
     }
-
+    dirs.forEach{ println(it.getPath()) }
     return smallest
   }
 
@@ -130,11 +127,25 @@ data class Directory(
   var name: String,
   var subDirs: MutableSet<Directory> = mutableSetOf(),
   var files : MutableSet<File> = mutableSetOf(),
-  var parent : Directory? = null,
   var level: Int = 0
 ) {
+  var parent : Directory? = null
   fun calculateFilesSize() : Int {
     return files.sumOf { it.size }
+  }
+
+  fun getPath() : String {
+    var path = name
+    var parentDir = parent
+    while(parentDir != null) {
+      if(parentDir.name != "/") {
+        path = "${parentDir.name}/$path"
+      } else {
+        path = "/$path"
+      }
+      parentDir = parentDir.parent
+    }
+    return path
   }
 
   fun calculateDirSize() : Int {
@@ -150,14 +161,6 @@ data class Directory(
 
   override fun toString(): String {
     return "Directory(name='$name', parent='$parent', level=$level, subdirs=${subDirs.joinToString { it.name }})"
-  }
-
-  override fun hashCode(): Int {
-    var result = name.hashCode()
-    result = 31 * result + subDirs.hashCode()
-    result = 31 * result + files.hashCode()
-    result = 31 * result + level
-    return result
   }
 
 }

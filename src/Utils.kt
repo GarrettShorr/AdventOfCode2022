@@ -15,7 +15,10 @@ fun readInput(name: String) : List<String> {
     return file.readLines()
 }
 
-fun output(o: Any) {
+fun output(o: Any, expected: Any = "") {
+    if(expected != "") {
+        check(o == expected) { "Expected: $expected but got $o"}
+    }
     println(o)
 
     Toolkit.getDefaultToolkit()
