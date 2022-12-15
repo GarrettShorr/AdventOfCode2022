@@ -1,15 +1,17 @@
 import kotlin.math.abs
 import kotlin.properties.Delegates
+import kotlin.system.measureNanoTime
 
 fun main() {
-  data class Point(val x: Int, val y: Int)  {
-    fun manhattanDistanceTo(other: Point) : Int {
+  data class Point(val x: Int, val y: Int) {
+    fun manhattanDistanceTo(other: Point): Int {
       return abs(x - other.x) + abs(y - other.y)
     }
   }
 
   data class Sensor(val location: Point, val nearestBeacon: Point) {
     var range by Delegates.notNull<Int>()
+
     init {
       range = location.manhattanDistanceTo(nearestBeacon)
     }
@@ -24,20 +26,24 @@ fun main() {
   fun part1(input: List<String>): Int {
     val Y = 2000000
 
-    val sensorsText =  input.map { it.split(": closest beacon is at ") }.map {
+    val sensorsText = input.map { it.split(": closest beacon is at ") }.map {
       it.map { it.split(", ") }
     }
     val sensors = mutableListOf<Sensor>()
     sensorsText.forEach {
-      sensors.add(Sensor(Point(it[0][0].split("=")[1].toInt(), it[0][1].split("=")[1].toInt()),
-        Point(it[1][0].split("=")[1].toInt(), it[1][1].split("=")[1].toInt())))
+      sensors.add(
+        Sensor(
+          Point(it[0][0].split("=")[1].toInt(), it[0][1].split("=")[1].toInt()),
+          Point(it[1][0].split("=")[1].toInt(), it[1][1].split("=")[1].toInt())
+        )
+      )
     }
 
     var cantBeThere = 0
-    for(x in -10_000_000..10_000_000) {
+    for (x in -10_000_000..10_000_000) {
 //    for(x in -50..50) {
 //      println(sensors.count { Point(x, Y).manhattanDistanceTo(it.location) <= it.range })
-      if(sensors.count { Point(x, Y).manhattanDistanceTo(it.location) <= it.range } >= 1) {
+      if (sensors.count { Point(x, Y).manhattanDistanceTo(it.location) <= it.range } >= 1) {
         cantBeThere++
       }
     }
@@ -46,19 +52,24 @@ fun main() {
   }
 
 
-  fun part2(input: List<String>): Long {val Y = 2000000
+  fun part2(input: List<String>): Long {
+    val Y = 2000000
 
-    val sensorsText =  input.map { it.split(": closest beacon is at ") }.map {
+    val sensorsText = input.map { it.split(": closest beacon is at ") }.map {
       it.map { it.split(", ") }
     }
     val sensors = mutableListOf<Sensor>()
     sensorsText.forEach {
-      sensors.add(Sensor(Point(it[0][0].split("=")[1].toInt(), it[0][1].split("=")[1].toInt()),
-        Point(it[1][0].split("=")[1].toInt(), it[1][1].split("=")[1].toInt())))
+      sensors.add(
+        Sensor(
+          Point(it[0][0].split("=")[1].toInt(), it[0][1].split("=")[1].toInt()),
+          Point(it[1][0].split("=")[1].toInt(), it[1][1].split("=")[1].toInt())
+        )
+      )
     }
 
     sensors.sortBy { it.location.x }
-    println(sensors)
+//    println(sensors)
 
 //    var count = 0
 //    var xx = 596122
@@ -77,7 +88,7 @@ fun main() {
 
     loop@ while (true) {
 //      sensors.first { it.location.manhattanDistanceTo(Point(x, y)) <= it.range && it.location.x >= x }
-      for(sensor in sensors) {
+      for (sensor in sensors) {
         var d = sensor.location.manhattanDistanceTo(Point(x, y))
         if (d <= sensor.range) {
           var dx = sensor.range - d
@@ -89,8 +100,8 @@ fun main() {
             y++
             continue@loop
           }
-          println("x: $x y: $y ${sensors.count { it.location.manhattanDistanceTo(Point(x, y)) >= it.range }} " +
-              "${x.toLong() * 4000000L + y.toLong()} sensors size: ${sensors.size}")
+//          println("x: $x y: $y ${sensors.count { it.location.manhattanDistanceTo(Point(x, y)) >= it.range }} " +
+//              "${x.toLong() * 4000000L + y.toLong()} sensors size: ${sensors.size}")
 
           if (sensors.count { it.location.manhattanDistanceTo(Point(x, y)) > it.range } == sensors.size) {
             return x.toLong() * 4000000L + y.toLong()
@@ -98,17 +109,17 @@ fun main() {
         } else {
           x++
 
-          println(
-            "x: $x y: $y ${
-              sensors.count {
-                it.location.manhattanDistanceTo(
-                  Point(
-                    x,
-                    y
-                  )
-                ) >= it.range
-              }
-            } ${x.toLong() * 4000000L + y.toLong()}")
+////          println(
+//            "x: $x y: $y ${
+//              sensors.count {
+//                it.location.manhattanDistanceTo(
+//                  Point(
+//                    x,
+//                    y
+//                  )
+//                ) >= it.range
+//              }
+//            } ${x.toLong() * 4000000L + y.toLong()}")
 
           if (sensors.count { it.location.manhattanDistanceTo(Point(x, y)) > it.range } == sensors.size) {
             return x.toLong() * 4000000L + y.toLong()
@@ -123,9 +134,7 @@ fun main() {
       }
 
 
-
     }
-
 
 
 ////      println(sensors.count { Point(x, Y).manhattanDistanceTo(it.location) <= it.range })
@@ -146,11 +155,12 @@ fun main() {
 
   // test if implementation meets criteria from the description, like:
   val testInput = readInput("Day15_test")
-  println(part1(testInput))
+//  println(part1(testInput))
 //  println(part2(testInput))
 
   val input = readInput("Day15")
 //  output(part1(input))
-//  output(part2(input))
+
+  println(formatNanos(measureNanoTime { output(part2(input)) }))
 }
 
