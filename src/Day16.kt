@@ -1,4 +1,4 @@
-import java.lang.Math.random
+import java.lang.Math.*
 import java.util.*
 
 fun main() {
@@ -92,6 +92,7 @@ fun main() {
       .map { it.replace("has flow rate=", "") }
       .map { it.replace(";", "") }
       .map { it.replace("tunnel", "tunnels") }
+      .map { it.replace("leads", "lead") }
       .map { it.replace("tunnels lead to valves ", "") }
       .map {
         val split = it.split(" ")
@@ -103,48 +104,70 @@ fun main() {
         .split(", ")
       connectedValves.forEach { valve.addAdjacentNode(valves.find { v -> v.name == it }!!, 1) }
     }
-    val releasedPressures = mutableListOf<Int>()
-    repeat(1000000) {
-      var minute = 0
+//    println(valves)
+    var bestLog = mutableListOf<String>()
+    var logList = mutableListOf<String>()
+//    val releasedPressures = mutableSetOf<Int>().toSortedSet(Collections.reverseOrder())
+//    releasedPressures.add(0)
+    var maxPressure = 0
+
+    repeat(1_000_000_000) {
+      var minute = 30
       var location = valves[0]
-      var justOpened = true
+      var oldLocation = location
+      var movingToAnotherRoom = true
       var releasedPressure = 0
-      while(minute <= 30) {
-        if(justOpened) {
+      while(minute > 0) {
+        if(movingToAnotherRoom) {
+          oldLocation = location
           location = location.adjacentNodes.keys.random()
-          if(!location.isOpen) {
-            justOpened = false
+//          println("from: ${oldLocation.name} to possibly ${oldLocation.adjacentNodes.keys.joinToString{it.name}} but went to ${location.name}")
+//          bestLog += "from: ${oldLocation.name} to possibly ${oldLocation.adjacentNodes.keys.joinToString{it.name}} but went to ${location.name}"
+          if(!location.isOpen && location.flowRate>0 && random() < 0.5) {
+            movingToAnotherRoom = false
           }
         } else {
-          location.isOpening = true
-          justOpened = true
+          location.isOpen = true
+          movingToAnotherRoom = true
+          releasedPressure += location.flowRate * (minute - 1)
         }
-        minute++
-        releasedPressure += valves.filter { it.isOpen }.sumOf { it.flowRate }
-//        println("time: $minute pressure: $releasedPressure location: ${location.name} openValves: " +
-//            "${valves.filter { it.isOpen }.joinToString{ it.name }} " +
+        minute--
+//        releasedPressure += valves.filter { it.isOpen }.sumOf { it.flowRate }
+        logList.add("\ntime: $minute pressure: $releasedPressure location: ${location.name} openValves: " +
+            "${valves.filter { it.isOpen }.joinToString{ it.name }} " +
 //            "opening: ${valves.filter { it.isOpening }.joinToString { it.name }} total " +
-//            "flow: ${valves.filter { it.isOpen }.sumOf { it.flowRate }} "
-//            )
-        valves.filter { it.isOpening }.forEach { it.isOpening = false; it.isOpen = true }
+            "flow: ${valves.filter { it.isOpen }.sumOf { it.flowRate }}")
+
+//        valves.filter { it.isOpening }.forEach { it.isOpening = false; it.isOpen = true }
 
       }
-      releasedPressures.add(releasedPressure)
       valves.forEach {
         it.isOpening = false
         it.isOpen = false
       }
-      location = valves[0]
-    }
-    valves.forEach { println("${it.name}: ${it.adjacentNodes.keys.joinToString { it.name }}") }
-    println(releasedPressures.sortedDescending().take(100))
+      if(releasedPressure > maxPressure) {
+        bestLog.clear()
+        bestLog.addAll(logList)
+        maxPressure = releasedPressure
+      }
+//      releasedPressures.add(releasedPressure)
+//      if(it % 100000 == 0) {
+//        for(i in releasedPressures.size-1 downTo 5) {
+//          releasedPressures.remove(releasedPressures.last())
+//        }
+////        println(releasedPressures)
+//      }
 
+      logList.clear()
+    }
+    valves.forEach { println("${it.name}: ${it.adjacentNodes.keys.joinToString { it.name }} flowRate: ${it.flowRate}") }
+    println(bestLog)
 //    val start = valves[0]
 //    val settled = calculateLargestFlowrate(start)
 //    println(settled)
 //
 //    return 0
-    return 0
+    return maxPressure
   }
 
 
@@ -156,10 +179,10 @@ fun main() {
 
   // test if implementation meets criteria from the description, like:
   val testInput = readInput("Day16_test")
-  println(part1(testInput))
+//  println(part1(testInput))
 //  println(part2(testInput))
 
   val input = readInput("Day16")
-//  output(part1(input))
+  output(part1(input))
 //  output(part2(input))
 }
